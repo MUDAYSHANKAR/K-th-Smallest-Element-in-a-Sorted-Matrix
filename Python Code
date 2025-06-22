@@ -1,0 +1,64 @@
+import heapq
+
+def kthSmallest_heap(matrix: list[list[int]], k: int) -> int:
+
+    n = len(matrix)
+    min_heap = []
+    
+    for r in range(min(k, n)):
+        heapq.heappush(min_heap, (matrix[r][0], r, 0))
+
+    result = -1
+    for _ in range(k):
+        result, r, c = heapq.heappop(min_heap)
+        if c + 1 < n:
+            heapq.heappush(min_heap, (matrix[r][c + 1], r, c + 1))
+            
+    return result
+
+def kthSmallest_binary_search(matrix: list[list[int]], k: int) -> int:
+
+    n = len(matrix)
+    low, high = matrix[0][0], matrix[n - 1][n - 1]
+    ans = -1
+
+    def count_less_equal(val):
+        count = 0
+        row, col = n - 1, 0
+        while row >= 0 and col < n:
+            if matrix[row][col] <= val:
+                count += (row + 1)
+                col += 1
+            else:
+                row -= 1
+        return count
+
+    while low <= high:
+        mid = (low + high) // 2
+        if count_less_equal(mid) >= k:
+            ans = mid
+            high = mid - 1
+        else:
+            low = mid + 1
+            
+    return ans
+
+matrix = [
+   [1,  5,  9],
+   [10, 11, 13],
+   [12, 13, 15]
+]
+k = 8
+
+print("--- K-th Smallest Element in a Sorted Matrix ---")
+print(f"Matrix: {matrix}")
+print(f"k: {k}\n")
+
+result_heap = kthSmallest_heap(matrix, k)
+result_binary_search = kthSmallest_binary_search(matrix, k)
+
+print(f"Result (Heap Method): {result_heap}")
+print(f"Result (Binary Search Method): {result_binary_search}")
+
+if result_heap == 13 and result_binary_search == 13:
+    print("\nBoth methods produced the correct result!")
